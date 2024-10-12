@@ -1,4 +1,5 @@
-#include <iostream>
+п»ї#include <iostream>
+#include <fstream>
 #include <vector>
 #include <queue>
 #include <unordered_map>
@@ -8,7 +9,7 @@
 
 using namespace std;
 
-// Структура для представления вершины
+// РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РІРµСЂС€РёРЅС‹
 struct Vertex {
     string name;
     double delay;
@@ -16,12 +17,12 @@ struct Vertex {
     double latestTime = numeric_limits<double>::infinity();
 };
 
-// Структура для представления графа
+// РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РіСЂР°С„Р°
 class Graph {
 public:
     unordered_map<string, Vertex> vertices;
-    unordered_map<string, vector<pair<string, double>>> adjList;  // список смежности с весами
-    unordered_map<string, vector<pair<string, double>>> reverseAdjList; // обратный список смежности
+    unordered_map<string, vector<pair<string, double>>> adjList;  // СЃРїРёСЃРѕРє СЃРјРµР¶РЅРѕСЃС‚Рё СЃ РІРµСЃР°РјРё
+    unordered_map<string, vector<pair<string, double>>> reverseAdjList; // РѕР±СЂР°С‚РЅС‹Р№ СЃРїРёСЃРѕРє СЃРјРµР¶РЅРѕСЃС‚Рё
 
     void addVertex(const string& name, double delay) {
         vertices[name] = { name, delay };
@@ -82,42 +83,59 @@ public:
         }
     }
 
-    void findViolations() {
+    void findViolations(ofstream& outputFile) {
         for (const auto& pair : vertices) {
             const Vertex& vertex = pair.second;
             double slack = vertex.latestTime - vertex.earliestTime;
+            /*outputFile << "Vertex " << vertex.name
+                << " -> Earliest: " << vertex.earliestTime
+                << ", Latest: " << vertex.latestTime
+                << ", Slack: " << slack << endl;*/
             if (slack < 0) {
-                cout << "Vertex " << vertex.name << " violates timing with slack: " << slack << endl;
+                outputFile << "Vertex " << vertex.name << " violates timing with slack: " << slack << endl;
             }
         }
     }
 };
 
 int main() {
+    // РћС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»РѕРІ
+    ifstream inputFile("input.txt");
+    ofstream outputFile("output.txt");
+
+    if (!inputFile.is_open() || !outputFile.is_open()) {
+        cerr << "Error: Unable to open input/output file!" << endl;
+        return 1;
+    }
+
     int V, E;
     double requiredTime;
-    cin >> V >> E >> requiredTime;
+    inputFile >> V >> E >> requiredTime;
 
     Graph g;
 
     for (int i = 0; i < V; ++i) {
         string name;
         double delay;
-        cin >> name >> delay;
+        inputFile >> name >> delay;
         g.addVertex(name, delay);
     }
 
     for (int i = 0; i < E; ++i) {
         string source, dest;
         double weight;
-        cin >> source >> dest >> weight;
+        inputFile >> source >> dest >> weight;
         g.addEdge(source, dest, weight);
     }
 
     vector<string> topoOrder = g.topologicalSort();
     g.calculateEarliestTimes(topoOrder);
     g.calculateLatestTimes(topoOrder, requiredTime);
-    g.findViolations();
+    g.findViolations(outputFile);
+
+    // Р—Р°РєСЂС‹С‚РёРµ С„Р°Р№Р»РѕРІ
+    inputFile.close();
+    outputFile.close();
 
     return 0;
 }

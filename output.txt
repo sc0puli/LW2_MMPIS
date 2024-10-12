@@ -1,0 +1,6 @@
+Vertex y violates timing with slack: -0.1
+Vertex z violates timing with slack: -0.35
+Vertex b violates timing with slack: -0.35
+Vertex x violates timing with slack: -0.35
+Vertex w violates timing with slack: -0.35
+Vertex f violates timing with slack: -0.35
